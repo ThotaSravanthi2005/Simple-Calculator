@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+    .calculator {
+      width: 320px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .calculator h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .expression {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      text-align: right;
+      font-size: 24px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      min-height: 50px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    button {
+      width: 70px;
+      height: 70px;
+      font-size: 24px;
+      margin: 5px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+    button:hover {
+      background-color: #e0e0e0;
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+    .operation-button {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    .operation-button:hover {
+      background-color: #ccc;
+    }
+    .clear-button {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+    .clear-button:hover {
+      background-color: #c0392b;
+    }
+    .error {
+      color: red;
+      font-style: italic;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h2>Interactive Calculator</h2>
+    <div class="expression" id="expression">0</div>
+    <div class="row">
+      <button onclick="appendExpression('7')">7</button>
+      <button onclick="appendExpression('8')">8</button>
+      <button onclick="appendExpression('9')">9</button>
+      <button class="operation-button" onclick="appendExpression('/')">/</button>
+    </div>
+    <div class="row">
+      <button onclick="appendExpression('4')">4</button>
+      <button onclick="appendExpression('5')">5</button>
+      <button onclick="appendExpression('6')">6</button>
+      <button class="operation-button" onclick="appendExpression('*')">*</button>
+    </div>
+    <div class="row">
+      <button onclick="appendExpression('1')">1</button>
+      <button onclick="appendExpression('2')">2</button>
+      <button onclick="appendExpression('3')">3</button>
+      <button class="operation-button" onclick="appendExpression('-')">-</button>
+    </div>
+    <div class="row">
+      <button onclick="appendExpression('0')">0</button>
+      <button class="clear-button" onclick="clearExpression()">C</button>
+      <button class="operation-button" onclick="calculate()">=</button>
+      <button class="operation-button" onclick="appendExpression('+')">+</button>
+    </div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    var expression = '';
+    var resultElement = document.getElementById('expression');
+    var errorElement = document.getElementById('error');
+
+    // Event listener for keyboard input
+    document.addEventListener('keydown', function(event) {
+      handleKeyboardInput(event.key);
+    });
+
+    function handleKeyboardInput(key) {
+      // Check if key is a number (0-9), operators (+, -, *, /), or Enter (=)
+      if ((key >= '0' && key <= '9') || key === '+' || key === '-' || key === '*' || key === '/' || key === 'Enter') {
+        if (key === 'Enter') {
+          calculate();
+        } else {
+          appendExpression(key);
+        }
+      } else if (key === 'Escape') {
+        clearExpression();
+      } else {
+        // Invalid input
+        errorElement.textContent = 'Error: Invalid input';
+        setTimeout(function() {
+          errorElement.textContent = '';
+        }, 2000); // Clear error message after 2 seconds
+      }
+    }
+
+    function appendExpression(value) {
+      // Avoid appending multiple operators
+      if (['+', '-', '*', '/'].includes(value) && ['+', '-', '*', '/'].includes(expression.slice(-1))) {
+        return;
+      }
+      if (expression === '0' && value !== '.') {
+        expression = value;
+      } else {
+        expression += value;
+      }
+      resultElement.textContent = expression;
+      errorElement.textContent = ''; // Clear error message
+    }
+
+    function clearExpression() {
+      expression = '';
+      resultElement.textContent = '0';
+      errorElement.textContent = '';
+    }
+
+    function calculate() {
+      try {
+        // Safe evaluation
+        var result = Function('"use strict"; return (' + expression + ')')();
+        resultElement.textContent = result;
+        expression = result.toString(); // Store result as new expression
+      } catch (error) {
+        errorElement.textContent = 'Error: Invalid Expression';
+        resultElement.textContent = '0';
+        expression = '';
+      }
+    }
+  </script>
+</body>
+</html>
